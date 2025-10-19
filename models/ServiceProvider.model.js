@@ -2,19 +2,20 @@ import mongoose from "mongoose";
 
 const serviceProviderSchema = new mongoose.Schema(
   {
+    // Basic Details
     name: {
       type: String,
       required: true,
     },
-    PAN: {
+    mobile: {
       type: String,
       required: true,
     },
-    GSTIN: {
+    pan: {
       type: String,
       required: true,
     },
-    contactNumber: {
+    gstin: {
       type: String,
       required: true,
     },
@@ -22,8 +23,10 @@ const serviceProviderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
+    // Banking Information
     bankInfo: {
-      accountNumber: {
+      bankName: {
         type: String,
         required: true,
       },
@@ -31,28 +34,45 @@ const serviceProviderSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
-      bankName: {
+      accountNumber: {
         type: String,
         required: true,
       },
     },
-    SLATerms: {
-      dueDays: {
+
+    // SLA Terms & Conditions
+    slaTerms: {
+      slaType: {
+        type: String,
+        required: true,
+        default: "Time Based",
+      },
+      penaltyType: {
+        type: String,
+        required: true,
+      },
+      penaltyValue: {
         type: Number,
         required: true,
       },
-      penaltyRate: {
-        type: Number,
+      incentiveType: {
+        type: String,
         required: true,
       },
-      incentiveRate: {
+      incentiveValue: {
         type: Number,
         required: true,
       },
     },
+
+    // TDS Details
     tdsApplicable: {
       type: Boolean,
       required: true,
+      default: false,
+    },
+    tdsPercentage: {
+      type: Number,
     },
   },
   {

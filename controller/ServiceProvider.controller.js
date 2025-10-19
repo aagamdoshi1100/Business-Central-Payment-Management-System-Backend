@@ -1,48 +1,51 @@
 import ServiceProvider from "../models/ServiceProvider.model.js";
 
 async function registerServiceProvider(req, res) {
+  console.log(req.body, "req");
   try {
     const {
       name,
-      PAN,
-      GSTIN,
-      contactNumber,
+      mobile,
+      pan,
+      gstin,
       email,
       bankInfo,
-      SLATerms,
+      slaTerms,
       tdsApplicable,
+      tdsPercentage,
     } = req.body;
 
     if (
       !name ||
-      !PAN ||
-      !GSTIN ||
-      !contactNumber ||
+      !mobile ||
+      !pan ||
+      !gstin ||
       !email ||
       !bankInfo ||
-      !SLATerms ||
-      !tdsApplicable
+      !slaTerms ||
+      tdsApplicable === undefined
     ) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required",
+        message: "All required fields are missing",
       });
     }
 
     const createServiceProvider = await ServiceProvider.create({
       name,
-      PAN,
-      GSTIN,
-      contactNumber,
+      mobile,
+      pan,
+      gstin,
       email,
       bankInfo,
-      SLATerms,
+      slaTerms,
       tdsApplicable,
+      tdsPercentage,
     });
     res.status(201).json({
       success: true,
       message: "Service provider registered successfully",
-      createServiceProvider,
+      data: createServiceProvider,
     });
   } catch (error) {
     console.log(error);
@@ -60,7 +63,7 @@ async function getServiceProvider(req, res) {
     res.status(200).json({
       success: true,
       message: "Service providers fetched successfully",
-      fetchServiceProviders,
+      data: fetchServiceProviders,
     });
   } catch (error) {
     console.log(error);
@@ -76,16 +79,23 @@ async function getServiceProviderById(req, res) {
   try {
     const { id } = req.params;
     const fetchServiceProviderById = await ServiceProvider.findById(id);
+    if (!fetchServiceProviderById) {
+      return res.status(404).json({
+        success: false,
+        message: "Service provider not found",
+      });
+    }
     res.status(200).json({
       success: true,
       message: "Service provider fetched successfully",
-      fetchServiceProviderById,
+      data: fetchServiceProviderById,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
       success: false,
       message: "Failed to get service provider by id",
+      error: error.message,
     });
   }
 }
@@ -95,38 +105,41 @@ async function updateServiceProvider(req, res) {
     const { id } = req.params;
     const {
       name,
-      PAN,
-      GSTIN,
-      contactNumber,
+      mobile,
+      pan,
+      gstin,
       email,
       bankInfo,
-      SLATerms,
+      slaTerms,
       tdsApplicable,
+      tdsPercentage,
     } = req.body;
     const updateServiceProvider = await ServiceProvider.findByIdAndUpdate(
       id,
       {
         name,
-        PAN,
-        GSTIN,
-        contactNumber,
+        mobile,
+        pan,
+        gstin,
         email,
         bankInfo,
-        SLATerms,
+        slaTerms,
         tdsApplicable,
+        tdsPercentage,
       },
       { new: true }
     );
     res.status(200).json({
       success: true,
       message: "Service provider updated successfully",
-      updateServiceProvider,
+      data: updateServiceProvider,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
       success: false,
       message: "Failed to update service provider",
+      error: error.message,
     });
   }
 }
@@ -135,16 +148,23 @@ async function deleteServiceProvider(req, res) {
   try {
     const { id } = req.params;
     const deleteServiceProvider = await ServiceProvider.findByIdAndDelete(id);
+    if (!deleteServiceProvider) {
+      return res.status(404).json({
+        success: false,
+        message: "Service provider not found",
+      });
+    }
     res.status(200).json({
       success: true,
       message: "Service provider deleted successfully",
-      deleteServiceProvider,
+      data: deleteServiceProvider,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
       success: false,
       message: "Failed to delete service provider",
+      error: error.message,
     });
   }
 }
