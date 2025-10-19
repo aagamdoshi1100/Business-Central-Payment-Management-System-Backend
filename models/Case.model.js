@@ -6,17 +6,11 @@ const CaseSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      default: function () {
-        return `CASE-${Date.now()}-${Math.random()
-          .toString(36)
-          .substr(2, 5)
-          .toUpperCase()}`;
-      },
     },
     serviceProviderName: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ServiceProvider",
       required: true,
-      trim: true,
     },
     workReferenceId: {
       type: String,
@@ -41,12 +35,8 @@ const CaseSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["open", "paid", "overdue"],
+      enum: ["open", "paid", "overdue", "due"],
       default: "open",
-    },
-    vendor: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "ServiceProvider",
     },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,

@@ -2,32 +2,32 @@ import Case from "../models/Case.model.js";
 
 const createCase = async (req, res) => {
   try {
-    const { caseNumber, vendor, assignedTo, amount, dueDate, status, notes } =
-      req.body;
+    const {
+      serviceProviderName,
+      workReferenceId,
+      description,
+      dueDate,
+      amount,
+    } = req.body;
 
-    if (
-      !caseNumber ||
-      !vendor ||
-      !assignedTo ||
-      !amount ||
-      !dueDate ||
-      !status ||
-      !notes
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
+    const countCases = await Case.countDocuments();
+    let caseNumber = "CASE-";
+    if (countCases < 10000000) {
+      for (let i = 0; i < 8 - countCases.toString.length; i++) {
+        caseNumber += "0";
+      }
+      caseNumber += countCases + 1;
+    } else {
+      caseNumber += countCases + 1;
     }
 
     const newCase = await Case.create({
       caseNumber,
-      vendor,
-      assignedTo,
-      amount,
+      serviceProviderName,
+      workReferenceId,
+      description,
       dueDate,
-      status,
-      notes,
+      amount,
     });
     res.status(201).json({
       success: true,
@@ -106,4 +106,32 @@ const updateCaseById = async (req, res) => {
   }
 };
 
-export { createCase, getAllCases, getCaseById, updateCaseById };
+const validateWorkId = async (req, res) => {
+  try {
+    const findWorkId = await Case.findOne({
+      workReferenceId: req.body.workReference,
+    });
+    if (!findWorkId) {
+      res.status(200).json({
+        success: true,
+        message: "Work Id not yet submitted",
+        findWorkId,
+      });
+    } else {
+      res.status(200).json({
+        success: false,
+        message: "Work Id has been already submitted",
+        findWorkId,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to validate Work Id",
+      error: error.message,
+    });
+  }
+};
+
+export { createCase, getAllCases, getCaseById, updateCaseById, validateWorkId };

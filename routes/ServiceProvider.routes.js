@@ -1,7 +1,7 @@
 import express from "express";
 import {
   deleteServiceProvider,
-  getServiceProvider,
+  getAllServiceProviders,
   getServiceProviderById,
   registerServiceProvider,
   updateServiceProvider,
@@ -9,7 +9,7 @@ import {
 const serviceProviderRouter = express.Router();
 
 serviceProviderRouter.post("/", registerServiceProvider);
-serviceProviderRouter.get("/", getServiceProvider);
+serviceProviderRouter.get("/", getAllServiceProviders);
 serviceProviderRouter.get("/:id", getServiceProviderById);
 serviceProviderRouter.put("/:id", updateServiceProvider);
 serviceProviderRouter.delete("/:id", deleteServiceProvider);

@@ -57,9 +57,16 @@ async function registerServiceProvider(req, res) {
   }
 }
 
-async function getServiceProvider(req, res) {
+async function getAllServiceProviders(req, res) {
   try {
-    const fetchServiceProviders = await ServiceProvider.find({});
+    const fetchServiceProviders = await ServiceProvider.aggregate([
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+        },
+      },
+    ]);
     res.status(200).json({
       success: true,
       message: "Service providers fetched successfully",
@@ -170,7 +177,7 @@ async function deleteServiceProvider(req, res) {
 }
 export {
   registerServiceProvider,
-  getServiceProvider,
+  getAllServiceProviders,
   getServiceProviderById,
   updateServiceProvider,
   deleteServiceProvider,

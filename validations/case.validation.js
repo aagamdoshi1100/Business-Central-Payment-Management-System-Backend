@@ -42,11 +42,4 @@ export const caseValidationSchema = z.object({
       }
     )
     .transform((val) => new Date(val)),
-
-  status: z.enum(["open", "paid", "overdue"]).default("open").optional(),
-
-  assignedTo: z
-    .string()
-    .regex(/^[0-9a-fA-F]{24}$/, "Invalid User ID format")
-    .optional(),
 });
