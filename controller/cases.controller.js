@@ -2,14 +2,8 @@ import Case from "../models/Case.model.js";
 
 const createCase = async (req, res) => {
   try {
-    const {
-      serviceProviderName,
-      workReferenceId,
-      description,
-      dueDate,
-      amount,
-    } = req.body;
-
+    const { serviceProvider, workReferenceId, description, dueDate, amount } =
+      req.body;
     const countCases = await Case.countDocuments();
     let caseNumber = "CASE-";
     if (countCases < 10000000) {
@@ -23,7 +17,7 @@ const createCase = async (req, res) => {
 
     const newCase = await Case.create({
       caseNumber,
-      serviceProviderName,
+      serviceProvider,
       workReferenceId,
       description,
       dueDate,
@@ -46,7 +40,9 @@ const createCase = async (req, res) => {
 
 const getAllCases = async (req, res) => {
   try {
-    const cases = await Case.find();
+    const cases = await Case.find()
+      .populate("serviceProvider", "name _id")
+      .populate("assignedTo", "name _id");
     res.status(200).json({
       success: true,
       message: "Cases fetched successfully",
@@ -81,16 +77,27 @@ const getCaseById = async (req, res) => {
   }
 };
 
-const updateCaseById = async (req, res) => {
+const updateCaseByCaseNumber = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { caseNumber, vendor, assignedTo, amount, dueDate, status, notes } =
-      req.body;
-    const updatedCase = await Case.findByIdAndUpdate(
-      id,
-      { caseNumber, vendor, assignedTo, amount, dueDate, status, notes },
+    const { caseNumber } = req.params;
+    const { assignedTo } = req.body;
+    if (!assignedTo) {
+      return res.status(400).json({
+        success: false,
+        message: "Failed to assign agent",
+      });
+    }
+    const updatedCase = await Case.findOneAndUpdate(
+      { caseNumber },
+      { assignedTo, status: "In progress" },
       { new: true }
     );
+    if (!updatedCase) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to update case",
+      });
+    }
     res.status(200).json({
       success: true,
       message: "Case updated successfully",
@@ -134,4 +141,10 @@ const validateWorkId = async (req, res) => {
   }
 };
 
-export { createCase, getAllCases, getCaseById, updateCaseById, validateWorkId };
+export {
+  createCase,
+  getAllCases,
+  getCaseById,
+  updateCaseByCaseNumber,
+  validateWorkId,
+};

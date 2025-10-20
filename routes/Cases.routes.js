@@ -3,7 +3,7 @@ import {
   createCase,
   getCaseById,
   getAllCases,
-  updateCaseById,
+  updateCaseByCaseNumber,
   validateWorkId,
 } from "../controller/cases.controller.js";
 import validate from "../middleware/validate.js";
@@ -14,6 +14,6 @@ caseRouter.post("/", validate(caseValidationSchema), createCase);
 caseRouter.get("/", getAllCases);
 caseRouter.post("/validateWorkId", validateWorkId);
 caseRouter.get("/:id", getCaseById);
-caseRouter.put("/:id", updateCaseById);
+caseRouter.put("/:caseNumber", updateCaseByCaseNumber);
 
 export default caseRouter;

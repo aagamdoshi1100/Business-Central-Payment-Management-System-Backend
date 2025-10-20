@@ -3,7 +3,7 @@ import { z } from "zod";
 const workReferenceIdPattern = /^WORK-\d{3,}$/;
 
 export const caseValidationSchema = z.object({
-  serviceProviderName: z
+  serviceProvider: z
     .string()
     .min(3, "Service Provider Name must be at least 3 characters")
     .max(100, "Service Provider Name must not exceed 100 characters")
