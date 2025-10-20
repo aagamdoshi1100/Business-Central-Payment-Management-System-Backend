@@ -15,7 +15,7 @@ const createCase = async (req, res) => {
       caseNumber += countCases + 1;
     }
 
-    const newCase = await Case.create({
+    const createdCase = await Case.create({
       caseNumber,
       serviceProvider,
       workReferenceId,
@@ -23,6 +23,12 @@ const createCase = async (req, res) => {
       dueDate,
       amount,
     });
+
+    const newCase = await Case.findById(createdCase._id).populate(
+      "serviceProvider",
+      "_id name"
+    );
+
     res.status(201).json({
       success: true,
       message: "Case created successfully",
