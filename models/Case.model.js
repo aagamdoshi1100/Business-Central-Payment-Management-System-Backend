@@ -12,6 +12,10 @@ const CaseSchema = new mongoose.Schema(
       ref: "ServiceProvider",
       required: true,
     },
+    paymentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Payment",
+    },
     workReferenceId: {
       type: String,
       required: true,
@@ -35,7 +39,7 @@ const CaseSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["open", "paid", "overdue", "due", "In progress"],
+      enum: ["open", "Paid", "overdue", "due", "In progress"],
       default: "open",
     },
     assignedTo: {

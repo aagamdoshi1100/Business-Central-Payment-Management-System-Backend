@@ -6,6 +6,7 @@ import connectDB from "./config/connectDB.js";
 import serviceProviderRouter from "./routes/ServiceProvider.routes.js";
 import userRouter from "./routes/User.routes.js";
 import caseRouter from "./routes/Cases.routes.js";
+import paymentRouter from "./routes/Payment.routes.js";
 connectDB();
 
 const app = express();
@@ -29,3 +30,4 @@ app.get("/", (req, res) => {
 app.use("/service-provider", serviceProviderRouter);
 app.use("/cases", caseRouter);
 app.use("/user", userRouter);
+app.use("/payment", paymentRouter);

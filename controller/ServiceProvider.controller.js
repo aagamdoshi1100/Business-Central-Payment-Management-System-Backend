@@ -1,7 +1,6 @@
 import ServiceProvider from "../models/ServiceProvider.model.js";
 
 async function registerServiceProvider(req, res) {
-  console.log(req.body, "req");
   try {
     const {
       name,
