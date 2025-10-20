@@ -158,19 +158,31 @@ const findUserAndDelete = async (req, res) => {
 
 const findUserAndUpdate = async (req, res) => {
   try {
-    const updateUser = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const updateUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { accessEnabled: !req.body.status },
+      {
+        new: true,
+      }
+    );
+    if (!updateUser) {
+      throw new Error("Failed to update user account");
+    }
     return res.status(200).json({
       result: true,
-      message: "Fetched all users",
-      updateUser,
+      message: "User account updated",
+      user: {
+        name: updateUser.name,
+        _id: updateUser._id,
+        accessEnabled: updateUser.accessEnabled,
+        accessType: updateUser.accessType,
+      },
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       result: false,
-      message: "Failed to fetch users",
+      message: "Failed to update user account",
     });
   }
 };
