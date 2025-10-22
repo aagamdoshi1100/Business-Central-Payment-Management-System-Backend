@@ -46,13 +46,27 @@ const createCase = async (req, res) => {
 
 const getAllCases = async (req, res) => {
   try {
-    const cases = await Case.find()
+    const { page, limit } = req.query;
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      sort: { createdAt: -1 },
+    };
+
+    const cases = await Case.find({})
+      .limit(options?.limit * 1)
+      .skip(options?.page * options?.limit)
+      .sort(options?.sort)
       .populate("serviceProvider", "name _id")
       .populate("assignedTo", "name _id");
+
+    const totalCases = await Case.countDocuments();
+
     res.status(200).json({
       success: true,
       message: "Cases fetched successfully",
       cases,
+      totalCases,
     });
   } catch (error) {
     console.log(error);

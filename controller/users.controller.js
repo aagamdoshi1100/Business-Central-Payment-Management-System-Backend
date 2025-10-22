@@ -107,11 +107,25 @@ const verifyUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({});
+    const { page, limit } = req.query;
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      sort: { createdAt: -1 },
+    };
+
+    const users = await User.find({})
+      .limit(options?.limit * 1)
+      .skip(options?.page * options?.limit)
+      .sort(options?.sort);
+
+    const totalUsers = await User.countDocuments();
+
     return res.status(200).json({
       result: true,
       message: "Fetched all users",
       users,
+      totalUsers,
     });
   } catch (error) {
     console.error(error);
