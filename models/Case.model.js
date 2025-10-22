@@ -39,8 +39,8 @@ const CaseSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["open", "Paid", "overdue", "due", "In progress"],
-      default: "open",
+      enum: ["Open", "Paid", "Overdue", "Due", "In progress"],
+      default: "Open",
     },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,

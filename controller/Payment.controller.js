@@ -71,7 +71,7 @@ export const getkeyValues = async (req, res) => {
     const caseStats = await Case.aggregate([
       {
         $match: {
-          status: { $in: ["In progress", "open", "Paid"] },
+          status: { $in: ["In progress", "Open", "Paid"] },
         },
       },
       {
@@ -122,5 +122,97 @@ export const getkeyValues = async (req, res) => {
       success: false,
       message: error.message || "Data fetch failed",
     });
+  }
+};
+
+export const generateReport = async (req, res) => {
+  try {
+    const { status, startDate, endDate } = req.body;
+    let query = {};
+    if (status === "All") {
+      query = {
+        paymentDate: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+      };
+    } else {
+      query = {
+        status: status,
+        paymentDate: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        },
+      };
+    }
+    const reports = await Payment.aggregate([
+      {
+        $match: query,
+      },
+      {
+        $lookup: {
+          from: "cases",
+          localField: "caseId",
+          foreignField: "_id",
+          as: "caseDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "serviceproviders",
+          localField: "serviceProviderId",
+          foreignField: "_id",
+          as: "serviceProviderDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "agentId",
+          foreignField: "_id",
+          as: "agentDetails",
+        },
+      },
+      {
+        $unwind: {
+          path: "$caseDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $unwind: {
+          path: "$serviceProviderDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $unwind: {
+          path: "$agentDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          transactionId: 1,
+          amount: 1,
+          paymentDate: 1,
+          status: 1,
+          remarks: 1,
+          caseNumber: "$caseDetails.caseNumber",
+          serviceProviderName: "$serviceProviderDetails.name",
+          agentName: "$agentDetails.name",
+          createdAt: 1,
+        },
+      },
+      {
+        $sort: {
+          paymentDate: -1,
+        },
+      },
+    ]);
+    res.status(200).json(reports);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: error.message });
   }
 };
