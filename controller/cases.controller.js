@@ -7,7 +7,7 @@ const createCase = async (req, res) => {
     const countCases = await Case.countDocuments();
     let caseNumber = "CASE-";
     if (countCases < 10000000) {
-      for (let i = 0; i < 8 - countCases.toString.length; i++) {
+      for (let i = 0; i < 8 - countCases.toString().length; i++) {
         caseNumber += "0";
       }
       caseNumber += countCases + 1;
