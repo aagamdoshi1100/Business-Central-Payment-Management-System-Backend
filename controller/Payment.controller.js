@@ -216,3 +216,111 @@ export const generateReport = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+export const getTransactionDetailsByCaseId = async (req, res) => {
+  try {
+    const { caseId } = req.params;
+
+    if (!caseId) {
+      return res.status(400).json({
+        success: false,
+        message: "Case ID is required",
+      });
+    }
+
+    const paymentDetails = await Payment.aggregate([
+      {
+        $match: {
+          caseId: new mongoose.Types.ObjectId(caseId),
+        },
+      },
+      {
+        $lookup: {
+          from: "cases",
+          localField: "caseId",
+          foreignField: "_id",
+          as: "caseDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "serviceproviders",
+          localField: "serviceProviderId",
+          foreignField: "_id",
+          as: "serviceProviderDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "agentId",
+          foreignField: "_id",
+          as: "agentDetails",
+        },
+      },
+      {
+        $unwind: {
+          path: "$caseDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $unwind: {
+          path: "$serviceProviderDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $unwind: {
+          path: "$agentDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          amount: 1,
+          transactionId: 1,
+          paymentDate: 1,
+          status: 1,
+          remarks: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          caseNumber: "$caseDetails.caseNumber",
+          caseStatus: "$caseDetails.status",
+          serviceProviderName: "$serviceProviderDetails.name",
+          serviceProviderEmail: "$serviceProviderDetails.email",
+          serviceProviderPhone: "$serviceProviderDetails.phone",
+          agentName: "$agentDetails.name",
+          agentEmail: "$agentDetails.email",
+        },
+      },
+      {
+        $sort: {
+          paymentDate: -1,
+        },
+      },
+    ]);
+
+    if (!paymentDetails || paymentDetails.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No payment details found for this case",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Payment details retrieved successfully",
+      data: paymentDetails,
+    });
+  } catch (error) {
+    console.error("Failed to fetch payment details:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch payment details",
+      error: error.message,
+    });
+  }
+};
