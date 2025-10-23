@@ -82,8 +82,8 @@ const verifyUser = async (req, res) => {
     res.cookie("auth_token", token, {
       httpOnly: true,
       secure: isProd,
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({
@@ -110,7 +110,7 @@ const logout = async (req, res) => {
     res.cookie("auth_token", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: "lax",
       expires: new Date(0),
     });
 
@@ -223,6 +223,18 @@ const findUserAndUpdate = async (req, res) => {
   }
 };
 
+const me = async (req, res) => {
+  try {
+    res.set("Cache-Control", "no-store");
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    return res.json({ user });
+  } catch (err) {
+    console.error("GetMe error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 export {
   createUser,
   getAllUsers,
@@ -231,4 +243,5 @@ export {
   findUserAndUpdate,
   verifyUser,
   logout,
+  me,
 };

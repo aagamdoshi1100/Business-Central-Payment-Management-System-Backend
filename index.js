@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+
 dotenv.config();
 import connectDB from "./config/connectDB.js";
 import serviceProviderRouter from "./routes/ServiceProvider.routes.js";
@@ -10,13 +12,14 @@ import paymentRouter from "./routes/Payment.routes.js";
 connectDB();
 
 const app = express();
-app.use(express.json());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL?.split(",") || ["http://localhost:5173"],
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
+app.use(express.json());
+app.use(cookieParser());
 const port = process.env.PORT;
 
 app.listen(port, () => {

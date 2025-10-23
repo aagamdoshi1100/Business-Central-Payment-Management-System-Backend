@@ -8,7 +8,11 @@ import {
 } from "../controller/cases.controller.js";
 import validate from "../middleware/validate.js";
 import { caseValidationSchema } from "../validations/case.validation.js";
+import { verifyAuth } from "../middleware/verifyAuth.js";
+
 const caseRouter = express.Router();
+
+caseRouter.use(verifyAuth);
 
 caseRouter.post("/", validate(caseValidationSchema), createCase);
 caseRouter.get("/", getAllCases);

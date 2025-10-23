@@ -27,7 +27,7 @@ UserSchema.methods.generateAuthToken = function () {
     accessType: this.accessType,
   };
   const secret = process.env.JWT_SECRET;
-  const expiresIn = process.env.JWT_EXPIRES_IN || "7d";
+  const expiresIn = process.env.JWT_EXPIRES_IN || "1d";
   return jwt.sign(payload, secret, { expiresIn });
 };
 
