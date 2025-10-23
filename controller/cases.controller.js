@@ -4,6 +4,14 @@ const createCase = async (req, res) => {
   try {
     const { serviceProvider, workReferenceId, description, dueDate, amount } =
       req.body;
+    const existingWorkId = await Case.findOne({ workReferenceId });
+    if (existingWorkId) {
+      res.status(200).json({
+        success: true,
+        message: `Case has been already created with the workId ${workReferenceId}`,
+        existingWorkId,
+      });
+    }
     const countCases = await Case.countDocuments();
     let caseNumber = "CASE-";
     if (countCases < 10000000) {

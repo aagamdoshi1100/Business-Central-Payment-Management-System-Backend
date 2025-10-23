@@ -21,6 +21,7 @@ const CaseSchema = new mongoose.Schema(
       required: true,
       trim: true,
       uppercase: true,
+      unique: true,
     },
     description: {
       type: String,

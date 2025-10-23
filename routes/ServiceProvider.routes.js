@@ -11,7 +11,7 @@ const serviceProviderRouter = express.Router();
 serviceProviderRouter.post("/", registerServiceProvider);
 serviceProviderRouter.get("/", getAllServiceProviders);
 serviceProviderRouter.get("/:id", getServiceProviderById);
-serviceProviderRouter.put("/:caseNumber", updateServiceProvider);
+serviceProviderRouter.put("/:id", updateServiceProvider);
 serviceProviderRouter.delete("/:id", deleteServiceProvider);
 //sss
 export default serviceProviderRouter;
