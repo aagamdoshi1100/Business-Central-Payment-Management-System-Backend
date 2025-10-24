@@ -1,4 +1,4 @@
-export const authorize = (...roles) => {
+export const verifyRole = (roles) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({
@@ -7,7 +7,7 @@ export const authorize = (...roles) => {
       });
     }
 
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.accessType)) {
       return res.status(403).json({
         success: false,
         message: "Access denied. Insufficient permissions.",
