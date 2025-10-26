@@ -1,13 +1,13 @@
 import { z } from "zod";
 
 const workReferenceIdPattern = /^WORK-\d{3,}$/;
+const objectIdPattern = /^[0-9a-fA-F]{24}$/;
 
 export const caseValidationSchema = z.object({
   serviceProvider: z
     .string()
-    .min(3, "Service Provider Name must be at least 3 characters")
-    .max(100, "Service Provider Name must not exceed 100 characters")
-    .trim(),
+    .trim()
+    .regex(objectIdPattern, "Invalid Service Provider ObjectId"),
 
   workReferenceId: z
     .string()

@@ -5,6 +5,7 @@ import {
   getAllCases,
   updateCaseByCaseNumber,
   validateWorkId,
+  createBulkCases,
 } from "../controller/cases.controller.js";
 import validate from "../middleware/validate.js";
 import { caseValidationSchema } from "../validations/case.validation.js";
@@ -15,6 +16,7 @@ const caseRouter = express.Router();
 caseRouter.use(verifyAuth);
 
 caseRouter.post("/", validate(caseValidationSchema), createCase);
+caseRouter.post("/createBulkCases", createBulkCases);
 caseRouter.get("/", getAllCases);
 caseRouter.post("/validateWorkId", validateWorkId);
 caseRouter.get("/:id", getCaseById);

@@ -1,4 +1,8 @@
 import Case from "../models/Case.model.js";
+import { nanoid, customAlphabet } from "nanoid";
+import { caseValidationSchema } from "../validations/case.validation.js";
+
+const nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 12);
 
 const createCase = async (req, res) => {
   try {
@@ -12,19 +16,9 @@ const createCase = async (req, res) => {
         existingWorkId,
       });
     }
-    const countCases = await Case.countDocuments();
-    let caseNumber = "CASE-";
-    if (countCases < 10000000) {
-      for (let i = 0; i < 8 - countCases.toString().length; i++) {
-        caseNumber += "0";
-      }
-      caseNumber += countCases + 1;
-    } else {
-      caseNumber += countCases + 1;
-    }
-
+    const caseNumber = `CASE-${nanoidCustom()}`;
     const createdCase = await Case.create({
-      caseNumber,
+      caseNumber: caseNumber,
       serviceProvider,
       workReferenceId,
       description,
@@ -48,6 +42,83 @@ const createCase = async (req, res) => {
       success: false,
       message: "Failed to create case",
       error: error.message,
+    });
+  }
+};
+
+const createBulkCases = async (req, res) => {
+  let resData = [];
+  let duplicates = [];
+  const validCases = [];
+  const invalidCases = [];
+
+  const generateCases = req.body.map((work) => {
+    const caseNumber = `CASE-${nanoidCustom()}`;
+    const dueDate = new Date(work.dueDate);
+    const amount = parseFloat(work.amount);
+    return {
+      caseNumber,
+      dueDate,
+      amount,
+      ...work,
+    };
+  });
+
+  generateCases.forEach((data, index) => {
+    const parsed = caseValidationSchema.safeParse(data);
+    if (parsed.success) {
+      validCases.push({
+        caseNumber: `CASE-${nanoid(10).toUpperCase()}`,
+        ...parsed.data,
+      });
+    } else {
+      invalidCases.push({
+        workid: data.workReferenceId,
+        errors: parsed.error.issues.map((e) => ({
+          field: e.path.join("."),
+          message: e.message,
+        })),
+      });
+    }
+  });
+
+  if (validCases.length === 0) {
+    return res.status(400).json({
+      result: false,
+      message: "All records invalid. Nothing inserted.",
+      invalidCases,
+    });
+  }
+
+  try {
+    const insertedDocs = await Case.insertMany(validCases, {
+      ordered: false,
+    });
+    return res.status(201).json({
+      insertedDocs,
+      message:
+        invalidCases.length > 0
+          ? `${insertedDocs.length} cases inserted. \n${invalidCases.length} invalid data entries.`
+          : `${insertedDocs.length} cases inserted.`,
+      invalidCases,
+    });
+  } catch (error) {
+    console.error(error);
+    error?.results?.map((data) => {
+      if (data?.caseNumber) {
+        resData.push(data);
+      } else {
+        duplicates.push(data.err.op.workReferenceId);
+      }
+    });
+    return res.status(200).json({
+      insertedDocs: resData,
+      duplicates,
+      invalidCases,
+      message:
+        invalidCases.length > 0
+          ? `${resData.length} cases inserted. \n${duplicates.length} duplicates skipped. \n${invalidCases.length} invalid data entries.`
+          : `${resData.length} cases inserted. \n${duplicates.length} duplicates skipped.`,
     });
   }
 };
@@ -171,6 +242,7 @@ const validateWorkId = async (req, res) => {
 
 export {
   createCase,
+  createBulkCases,
   getAllCases,
   getCaseById,
   updateCaseByCaseNumber,
