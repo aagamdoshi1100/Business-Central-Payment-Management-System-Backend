@@ -9,7 +9,19 @@ export const createPayment = async (req, res) => {
   session.startTransaction();
 
   try {
-    const { caseId, serviceProviderId, agentId, amount } = req.body;
+    const {
+      caseId,
+      serviceProviderId,
+      agentId,
+      NetAmount,
+      baseAmount,
+      GSTAmount,
+      TDSAmount,
+      TradeDiscountAmount,
+      convenienceCharges,
+      SLAType,
+      SLAAmountValue,
+    } = req.body;
     if (!agentId) {
       throw new Error("Kindly assign agent to initiate payment");
     }
@@ -29,11 +41,18 @@ export const createPayment = async (req, res) => {
           caseId,
           serviceProviderId,
           agentId,
-          amount,
+          NetAmount,
           transactionId,
           paymentDate: date.toISOString(),
           status: "Completed",
-          remarks: "Payment done",
+          remarks: "Payment has been paid",
+          baseAmount,
+          GSTAmount,
+          TDSAmount,
+          TradeDiscountAmount,
+          convenienceCharges,
+          SLAType,
+          SLAAmountValue,
         },
       ],
       { session }
@@ -279,7 +298,14 @@ export const getTransactionDetailsByCaseId = async (req, res) => {
       {
         $project: {
           _id: 1,
-          amount: 1,
+          NetAmount: 1,
+          baseAmount: 1,
+          GSTAmount: 1,
+          TDSAmount: 1,
+          TradeDiscountAmount: 1,
+          convenienceCharges: 1,
+          SLAType: 1,
+          SLAAmountValue: 1,
           transactionId: 1,
           paymentDate: 1,
           status: 1,

@@ -18,15 +18,14 @@ const paymentSchema = new mongoose.Schema(
       required: true,
     },
 
-    amount: { type: Number, required: true, min: 0 },
-    // penaltyValue: { type: Number, default: 0 },
-    // incentiveValue: { type: Number, default: 0 },
-    // tradeDiscountValue: { type: Number, default: 0 },
-    // convenienceChargeValue: { type: Number, default: 0 },
-    // tdsValue: { type: Number, default: 0 },
-
-    // finalPayableAmount: { type: Number, required: true },
-
+    NetAmount: { type: Number, required: true, min: 0 },
+    baseAmount: { type: Number, default: 0 },
+    GSTAmount: { type: Number, default: 0 },
+    TDSAmount: { type: Number, default: 0 },
+    TradeDiscountAmount: { type: Number, default: 0 },
+    convenienceCharges: { type: Number, default: 0 },
+    SLAType: String,
+    SLAAmountValue: { type: Number, default: 0 },
     paymentMode: {
       type: String,
       enum: ["UPI", "NEFT", "IMPS", "Cheque"],
