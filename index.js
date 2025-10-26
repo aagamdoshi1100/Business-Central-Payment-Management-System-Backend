@@ -9,6 +9,8 @@ import serviceProviderRouter from "./routes/ServiceProvider.routes.js";
 import userRouter from "./routes/User.routes.js";
 import caseRouter from "./routes/Cases.routes.js";
 import paymentRouter from "./routes/Payment.routes.js";
+import { userActivityLogger } from "./middleware/userActivityLogger.js";
+import logRouter from "./routes/UserLog.routes.js";
 connectDB();
 
 const app = express();
@@ -20,6 +22,7 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+app.use(userActivityLogger);
 const port = process.env.PORT;
 
 app.listen(port, () => {
@@ -34,3 +37,4 @@ app.use("/service-provider", serviceProviderRouter);
 app.use("/cases", caseRouter);
 app.use("/user", userRouter);
 app.use("/payment", paymentRouter);
+app.use("/logs", logRouter);
