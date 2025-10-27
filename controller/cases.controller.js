@@ -1,6 +1,7 @@
 import Case from "../models/Case.model.js";
 import { nanoid, customAlphabet } from "nanoid";
 import { caseValidationSchema } from "../validations/case.validation.js";
+import BulkLog from "../models/BulkLog.model.js";
 
 const nanoidCustom = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 12);
 
@@ -119,6 +120,13 @@ const createBulkCases = async (req, res) => {
         invalidCases.length > 0
           ? `${resData.length} cases inserted. \n${duplicates.length} duplicates skipped. \n${invalidCases.length} invalid data entries.`
           : `${resData.length} cases inserted. \n${duplicates.length} duplicates skipped.`,
+    });
+  } finally {
+    await BulkLog.create({
+      userId: req.user.id,
+      validCases: resData.length,
+      duplicates: duplicates.length,
+      invalidCases: invalidCases.length,
     });
   }
 };
