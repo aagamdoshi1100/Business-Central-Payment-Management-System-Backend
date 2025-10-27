@@ -4,6 +4,7 @@ import {
   getkeyValues,
   generateReport,
   getTransactionDetailsByCaseId,
+  getAllPayments,
 } from "../controller/Payment.controller.js";
 import validate from "../middleware/validate.js";
 import { reportFilterSchema } from "../validations/report.validation.js";
@@ -20,6 +21,13 @@ paymentRouter.get(
   verifyRole(["admin", "finance", "auditor"]),
   getkeyValues
 );
+
+paymentRouter.get(
+  "/getPaymentSummary",
+  verifyRole(["admin", "finance", "auditor"]),
+  getAllPayments
+);
+
 paymentRouter.post(
   "/report",
   validate(reportFilterSchema),

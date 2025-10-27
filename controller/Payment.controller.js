@@ -357,3 +357,71 @@ export const getTransactionDetailsByCaseId = async (req, res) => {
     });
   }
 };
+
+export const getAllPayments = async (req, res) => {
+  try {
+    const payments = await Payment.find()
+      .populate("serviceProviderId", "name")
+      .populate("caseId", "caseNumber")
+      .lean();
+
+    if (!payments.length)
+      return res.status(204).json({ message: "No payment records available." });
+
+    // 1 Total payments
+    const totalNetAmount = payments.reduce(
+      (sum, p) => sum + (p.NetAmount || 0),
+      0
+    );
+    const totalGST = payments.reduce((sum, p) => sum + (p.GSTAmount || 0), 0);
+    const totalTDS = payments.reduce((sum, p) => sum + (p.TDSAmount || 0), 0);
+    const totalBase = payments.reduce((sum, p) => sum + (p.baseAmount || 0), 0);
+    const totalSLA = payments.reduce(
+      (sum, p) => sum + (p.SLAAmountValue || 0),
+      0
+    );
+
+    // 2️ Monthly payment trend (grouped by month)
+    const monthlyTrend = {};
+    payments.forEach((p) => {
+      const date = new Date(p.paymentDate);
+      const month = date.toLocaleString("default", { month: "short" });
+      monthlyTrend[month] = (monthlyTrend[month] || 0) + (p.NetAmount || 0);
+    });
+
+    // 3️ SLA Incentive usage (count how many have SLAType)
+    const slaUsage = payments.filter((p) => p.SLAType).length;
+
+    // --- 📦 Response Data ---
+    const data = {
+      total: {
+        base: totalBase.toFixed(2),
+        gst: totalGST.toFixed(2),
+        tds: totalTDS.toFixed(2),
+        sla: totalSLA.toFixed(2),
+        net: totalNetAmount.toFixed(2),
+      },
+      breakdownChart: [
+        { name: "Base", amount: totalBase },
+        { name: "GST", amount: totalGST },
+        { name: "TDS", amount: totalTDS },
+        { name: "SLA", amount: totalSLA },
+        { name: "Net", amount: totalNetAmount },
+      ],
+      slaUsage,
+      monthlyTrend: Object.entries(monthlyTrend).map(([month, amount]) => ({
+        month,
+        amount,
+      })),
+      payments,
+    };
+
+    res.status(200).json({
+      message: "Payment data fetched successfully",
+      data,
+    });
+  } catch (error) {
+    console.error("Error in getAllPayments:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
