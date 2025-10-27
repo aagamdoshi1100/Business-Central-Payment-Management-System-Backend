@@ -4,7 +4,11 @@ const UserSchema = new mongoose.Schema(
   {
     name: String,
     email: { type: String, unique: true },
-    accessType: { type: String, enum: ["admin", "agent"], default: "agent" },
+    accessType: {
+      type: String,
+      enum: ["admin", "agent", "finance", "auditor"],
+      default: "agent",
+    },
     accessEnabled: { type: Boolean, default: false },
     password: String,
   },

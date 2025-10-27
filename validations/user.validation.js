@@ -6,7 +6,10 @@ export const userSchema = z
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
-    accessType: z.enum(["admin", "agent"], "Invalid access type"),
+    accessType: z.enum(
+      ["admin", "agent", "finance", "auditor"],
+      "Invalid access type"
+    ),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

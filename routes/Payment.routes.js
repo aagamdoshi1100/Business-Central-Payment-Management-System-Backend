@@ -15,11 +15,15 @@ const paymentRouter = express.Router();
 paymentRouter.use(verifyAuth);
 
 paymentRouter.post("/", createPayment);
-paymentRouter.get("/getBasicDetails", getkeyValues);
+paymentRouter.get(
+  "/getBasicDetails",
+  verifyRole(["admin", "finance", "auditor"]),
+  getkeyValues
+);
 paymentRouter.post(
   "/report",
   validate(reportFilterSchema),
-  verifyRole(["admin"]),
+  verifyRole(["admin", "auditor"]),
   generateReport
 );
 paymentRouter.get("/cases/:caseId", getTransactionDetailsByCaseId);

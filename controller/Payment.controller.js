@@ -213,7 +213,7 @@ export const generateReport = async (req, res) => {
       {
         $project: {
           transactionId: 1,
-          amount: 1,
+          NetAmount: 1,
           paymentDate: 1,
           status: 1,
           remarks: 1,
@@ -229,7 +229,14 @@ export const generateReport = async (req, res) => {
         },
       },
     ]);
-    res.status(200).json(reports);
+    if (reports?.length < 1) {
+      res.status(204).json({
+        reports,
+        message: "No data avilable",
+      });
+    } else {
+      res.status(200).json(reports);
+    }
   } catch (error) {
     console.error(error);
     res.status(400).json({ message: error.message });
